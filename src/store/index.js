@@ -37,13 +37,20 @@ export default new Vuex.Store({
       prefix: 'V'
     },
 
+    optionsCleaveService: {
+      uppercase: true,
+      delimiter: '-'
+    },
+
     //Settings
     technologies: '',
     requestsItems: '',
     date: null,
     dialogSettingsRequests: false,
     dialogSettingsServices: false,
-    dialogSettingsServicesTechnologie: ''
+    dialogSettingsServicesTechnologie: '',
+    dialogSettingsServicesData: '',
+    dialogSettingsServicesEdit: false
    
   },
   mutations: {
@@ -109,10 +116,10 @@ export default new Vuex.Store({
     },
 
     setDialogSettingsServices(state, payload){
-      console.log(payload)
-
       state.dialogSettingsServices = payload.status
       state.dialogSettingsServicesTechnologie = payload.technologie
+      state.dialogSettingsServicesData = payload.data
+      state.dialogSettingsServicesEdit = payload.edit
     }
 
   },

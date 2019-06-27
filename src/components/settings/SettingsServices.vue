@@ -46,16 +46,26 @@
                       <v-switch
                         color="teal lighten-3"
                         v-model="props.item.status"
+                        @change="changeStatus(props.item.id, props.item.status, props.item.name)"
                       ></v-switch>
                     </td>
                     <td class="text-center"> 
-                      <v-btn flat icon small>
-                       <v-icon>edit</v-icon>
+                      <v-btn 
+                      flat 
+                      icon 
+                      small 
+                      @click="add({
+                        technologie: data.technologie, 
+                        data: props.item,
+                        edit: true
+                        })"
+                      >
+                      <v-icon>edit</v-icon>
                       </v-btn>
                     </td>
                   </template>
                   <template v-slot:pageText="props">
-                    Lignes {{ props.pageStart }} - {{ props.pageStop }} de {{ props.itemsLength }}
+                    Registros {{ props.pageStart }} - {{ props.pageStop }} de {{ props.itemsLength }}
                   </template>
                   <template v-slot:footer>
                     <td :colspan="headersServices.length" class="text-right">
@@ -64,7 +74,11 @@
                       outline 
                       small
                       dark
-                      @click="add(data.technologie)"
+                      @click="add({
+                        technologie: data.technologie, 
+                        data: {},
+                        edit: false
+                        })"
                       >Agregar
                       </v-btn>
                     </td>
@@ -111,7 +125,7 @@ import { mapMutations } from 'vuex';
         technologies: [],
         dataTable: []
       }
-    }, 
+    },
     methods: {
         ...mapMutations(['setDialogSettingsServices']),
         buildDataTable(){
@@ -125,15 +139,28 @@ import { mapMutations } from 'vuex';
             })
           })
         },
-        add(technologie){
+        add(data){
           this.setDialogSettingsServices({
             status: true,
-            technologie
+            technologie: data.technologie,
+            data: data.data,
+            edit: data.edit
           })
+        },
+        changeStatus(id, status, name){
+          firebase.firestore()
+            .collection('services')
+            .doc(id)
+            .update({
+              status
+            })
+            .then(()=>{
+              var msj = status ? 'Activo' : 'Inactivo'
+              this.$alertify.warning(`Plan ${name} ha sido modificado a ${msj}`)
+            })
         }
     },
     created() {
-      this.services = []
       this.technologies = []
       firebase.firestore()
         .collection('typeLine')
@@ -144,8 +171,9 @@ import { mapMutations } from 'vuex';
            firebase.firestore()
             .collection('services')
             .onSnapshot(s => {
+              this.services = []
               s.forEach(service => {
-                this.services.push(service.data())
+                this.services.push(Object.assign(service.data(), {id: service.id}))
               })
               this.buildDataTable()
             })

@@ -283,6 +283,8 @@ export default {
         firebase.firestore()
             .collection('optionsRequests')
             .onSnapshot(s => {
+                this.requestName = []
+                this.requests = []
                 s.forEach(request => {
                     this.requestName.push(request.data().name)
                     this.requests.push(request.data())

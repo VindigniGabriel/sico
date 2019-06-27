@@ -74,10 +74,9 @@
 </template>
 
 <script>
-
-import Cleave from 'vue-cleave-component';
+import Cleave from 'vue-cleave-component'
 import firebase from 'firebase'
-import { mapState } from 'vuex';
+import { mapState } from 'vuex'
 export default {
     components: {
         Cleave
