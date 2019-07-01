@@ -100,10 +100,17 @@ export default {
         }
     },
     computed: {
-        ...mapState(['clientData', 'optionsCleaveIdentify']),
-        validIdentify: state => state.clientData.identify.length < 7 ? true : false
+        ...mapState(['clientData', 'optionsCleaveIdentify', 'addRequest']),
+        validIdentify: state => {
+            if(state.clientData.identify.length < 7 || state.clientData.name === null || state.clientData.contact1.length < 10){
+                return true
+            }else{
+                return false
+            }
+        }
     },
     methods: {
+        ...mapMutations(['setAddRequest']),
         editUserData(){
             this.edit = false
         },
@@ -113,6 +120,7 @@ export default {
                 .doc(this.clientData.clientId)
                 .set(this.clientData)
                 .then(reponse => {
+                    this.setAddRequest(true)
                     this.$alertify.success('Usuario actualizado con éxito.')
                 })
             this.edit = true

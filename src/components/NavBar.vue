@@ -24,6 +24,19 @@
                 <v-list-tile-title>{{ item.text }}</v-list-tile-title>
                 </v-list-tile-content>
             </v-list-tile>
+            <v-list-tile
+            >
+                <v-list-tile-action>
+                    <v-switch
+                        color="teal lighten-3"
+                        v-model="changeDark"
+                        small
+                    ></v-switch>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                <v-list-tile-title>{{!changeDark ? 'Fondo Claro' : 'Fondo Oscuro'}}</v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
             <v-list-tile>
                 <v-list-tile-action>
                 <v-btn icon @click.stop="mini = !mini" v-if="!mini">
@@ -54,19 +67,22 @@ import firebase from 'firebase'
 export default {
     data() {
         return {
+            changeDark: true,
             mini: true,
             drawer: null,
             itemsMenu: [
                 { icon: 'person_add', text: 'Registro de usuarios', url: '/' },
+                { icon: 'list', text: 'Historial de la OC', url: '/list' },
+                { icon: 'calendar_today', text: 'Citas', url: '/quote' },
                 { icon: 'settings', text: 'Configuraciones', url: '/settings' }
             ],
         }
     },
     computed: {
-        ...mapState(['idOffice', 'statusSesion', 'userName', 'userEmail'])
+        ...mapState(['idOffice', 'statusSesion', 'userName', 'userEmail', 'setDark'])
     },
     methods: {
-        ...mapMutations(['setIdOffice', 'setStatusSesion', 'setUserEmail', 'setUserName']),
+        ...mapMutations(['setIdOffice', 'setStatusSesion', 'setUserEmail', 'setUserName', 'setSetDark']),
         url(url){
             this.$router.push(`${url}`)
         },
@@ -82,7 +98,14 @@ export default {
             });
         }
     },
+    watch: {
+        changeDark(val){
+            val || this.setSetDark(val)
+            !val || this.setSetDark(val)
+        }
+    },
     created() {
+        this.changeDark = this.setDark
         firebase.auth().onAuthStateChanged(user => {
             if(user){
                 firebase.firestore()

@@ -6,7 +6,7 @@
         <v-spacer></v-spacer>
         <v-tooltip left>
           <template v-slot:activator="{ on }">
-            <v-btn flat icon :disabled="!addRequests" v-on="on" @click="$store.commit('setDialogNewRequest', true)">
+            <v-btn flat icon :disabled="!addRequest" v-on="on" @click="$store.commit('setDialogNewRequest', true)">
               <v-icon>add</v-icon>
             </v-btn>
           </template>
@@ -123,8 +123,7 @@ import { mapState, mapMutations } from "vuex";
       }
     },
     computed: {
-      ...mapState(['clientData', 'clientExists', 'clientRequests']),
-      addRequests: state => state.clientData.name != '' && state.clientData.identify.length > 6 && state.clientData.contact1.length === 10
+      ...mapState(['clientData', 'clientExists', 'clientRequests', 'addRequest']),
     },
     methods: {
       ...mapMutations(['setClientRequests']),

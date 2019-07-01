@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :dark="setDark">
     <NavBar/>
     <v-content>
         <transition name="gpcg">
@@ -11,12 +11,16 @@
 
 <script>
 import NavBar from "@/components/NavBar";
+import { mapState } from 'vuex';
 export default {
   name: 'App',
   data () {
     return {
       
     }
+  },
+  computed: {
+    ...mapState(['setDark'])
   },
   components: {
     NavBar

@@ -1,15 +1,14 @@
 <template>
   <v-layout row justify-center>
-    <v-dialog v-model="dialogSettingsRequests" fullscreen hide-overlay transition="dialog-bottom-transition">
+    <v-dialog v-model="dialogSettingsRequests" fullscreen hide-overlay transition="dialog-bottom-transition" persistent>
       <v-card>
         <v-toolbar dark color="primary">
-          <v-btn icon dark @click="setDialogSettingsRequests(false)">
+          <v-btn icon dark @click="close">
             <v-icon>close</v-icon>
           </v-btn>
-          <v-toolbar-title>Configuración de los Requerimientos</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn dark flat @click="save" :disabled="buttonSave">Guardar</v-btn>
+            <v-btn dark flat @click="save">Guardar</v-btn>
           </v-toolbar-items>
         </v-toolbar>
           <v-subheader>General</v-subheader>
@@ -39,8 +38,8 @@
                   <v-flex xs12 sm6 md3>
                     <v-switch
                       color="teal lighten-3"
-                      v-model="service"
-                      :label="`Activación de plan: ${service ? 'Si': 'No'}`"
+                      v-model="request.service"
+                      :label="`Activación de plan: ${request.service ? 'Si': 'No'}`"
                     ></v-switch>
                   </v-flex>
                 </v-layout>
@@ -86,96 +85,164 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import firebase from 'firebase'
-import { mapState, mapMutations } from 'vuex';
-  export default {
-    data () {
+import { mapState, mapMutations } from 'vuex'
+export default {
+  data () {
       return {
-        request: '',
-        aplications: [],
-        service: false,
-        phone: false,
-        requestName: '',
-        technologiesAssing: [],
-        services: []
+        request: '', //Objeto requerimientos {name, phone, technologies, face, service}
+        aplications: [], //Facturadores {name, status}
+        technologiesAssing: [] // "name": Tecnologie, "add": true/false, "aplications": Ej. [ "Sinapsis" ]
       }
     },
-    computed: {
-      ...mapState(['dialogSettingsRequests', 'technologies']),
-      buttonSave: state => state.request.name != '' ? false : true
+  computed: {
+    ...mapState(['dialogSettingsRequests', 'technologies', 'dialogSettingsRequestsEdit', 'dialogSettingsRequestsData']),
+    validationNewRequest: state => {
+      var filter = state.technologiesAssing.filter(r => r.add === true && r.aplications.length > 0)
+      return filter.length > 0 ? true : false 
+    }
+  },
+  watch: {
+    dialogSettingsRequests(val){
+      val || this.close()
     },
-    methods: {
-      ...mapMutations(['setDialogSettingsRequests']),
-      buildRequest(){
-        this.request = {
-          name: '',
-          phone: true,
-          technologies: [],
-          face: true
+    dialogSettingsRequestsEdit(val){
+
+      if(val){
+          this.technologiesAssing= []
+          this.request = this.dialogSettingsRequestsData
+
+          this.technologies.forEach((t,i) => {
+
+            var validation = this.dialogSettingsRequestsData.technologies.filter(req => req.name === t)
+            if(validation.length > 0){
+              this.technologiesAssing.push({
+                name: t,
+                add: true,
+                aplications: validation[0].aplications
+              })
+            }else{
+              this.technologiesAssing.push({
+                name: t,
+                add: false,
+                aplications: ''
+              })
+            }
+
+          })
+      }else{
+        this.buildRequest()
+      }
+    }
+  },
+  methods: {
+    ...mapMutations(['setDialogSettingsRequests', 'setDialogLoading']),
+    buildRequest(){
+      this.request = {
+        name: '',
+        phone: true,
+        technologies: [],
+        face: true,
+        service: false
+      }
+    },
+    save(){
+      var error = false
+
+      if(!this.validationNewRequest){
+        this.$alertify.error('Error!. El requerimiento no posee asignación.')
+        error = true
+      }
+
+      if(this.request.name === ''){
+        this.$alertify.error('Error!. El requerimiento no posee un nombre.')
+        error = true
+      }
+
+      this.request.technologies = []
+
+      //se inserta array de las asignaciones a request
+      this.technologiesAssing.forEach(technologie => {
+
+        if(technologie.add){
+            this.request.technologies.push({
+            aplications: technologie.aplications,
+            name: technologie.name,
+          })
         }
-      },
-      save(){
-        var service
-        this.request.technologies = []
-        this.technologiesAssing.forEach(technologie => {
 
-          service = this.service ? this.services.filter(service => service.technologie === technologie.name && service.status) : ['No Aplica']
-          
-          if(technologie.add){
-              this.request.technologies.push({
-              aplications: technologie.aplications,
-              name: technologie.name,
-              subRequest: service
-            })
-          }
+      })
 
-        })
-
-        this.proccessSettingsRequest()
-
-      },
-      proccessSettingsRequest(){
-        firebase.firestore()
-          .collection('optionsRequests')
-          .add(this.request)
-          .then(r => {
-            this.$alertify.success('Requerimiento agregado con éxito.')
-          })
-          .catch(e => {
-            this.$alertify.error(`Error!. ${e}`)
-          })
+      if(!error){
+        this.setDialogLoading(true)
+        if(this.dialogSettingsRequestsEdit){
+          this.proccessSettingsRequestEdit()
+        }else{
+          this.proccessSettingsRequest()
+        }
       }
     },
-    created() {
-      this.buildRequest()
-      this.aplications = []
+    proccessSettingsRequest(){
+      firebase.firestore()
+        .collection('optionsRequests')
+        .add(this.request)
+        .then(() => {
+          this.$alertify.success('Requerimiento agregado con éxito.')
+          this.close()
+        })
+        .catch(() => {
+          this.$alertify.error(`Error!`)
+          this.close()
+        })
+    },
+    proccessSettingsRequestEdit(){
+      firebase.firestore()
+        .collection('optionsRequests')
+        .doc(this.request.id)
+        .update(this.request)
+        .then( () => {
+          this.$alertify.success('Requerimiento actualizado con éxito.')
+          this.close()
+        })
+        .catch( () => {
+          this.$alertify.error(`Error!`)
+          this.close()
+        })
+    },
+    close(){
+      this.setDialogSettingsRequests({
+        status: false,
+        edit: false
+      })
+      this.updateTechnologiesAssing()
+      this.setDialogLoading(false)
+    },
+    updateTechnologiesAssing(){
       this.technologiesAssing = []
-      this.services = []
-
-      firebase.firestore()
-        .collection('aplications')
-        .get()
-        .then(aplication => {
-          aplication.forEach(a => {
-            this.aplications.push(a.data())
-          })
-        })
-
-      firebase.firestore()
-        .collection('services')
-        .get()
-        .then(service => {
-          service.forEach(s => {
-            this.services.push(s.data())
-          })
-        })
 
       this.technologies.forEach(technologie => {
         this.technologiesAssing.push({
-          name: technologie,
-          add: false,
-          aplications: ''
+            name: technologie,
+            add: false,
+            aplications: ''
+          })
+      })
+
+      this.buildRequest()
+
+    }
+  },
+  created() {
+    this.aplications = [] //Facturadores {name, status}
+
+    firebase.firestore()
+      .collection('aplications')
+      .get()
+      .then(aplication => {
+        aplication.forEach(a => {
+          this.aplications.push(a.data())
         })
-      });
-    },
+        this.updateTechnologiesAssing()
+      })
   }
+}
 </script>

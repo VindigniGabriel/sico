@@ -48,7 +48,7 @@ export default {
         Cleave
     },
     methods: {
-        ...mapMutations(['setClientData', 'setClientDataFirestore', 'setClientExists']),
+        ...mapMutations(['setClientData', 'setClientDataFirestore', 'setClientExists', 'setAddRequest']),
         changeNacionality(){
             this.setClientDataFirestore({
                 clientId: '',
@@ -79,6 +79,7 @@ export default {
                         this.$router.push(`/registerclient/${id}`)
                     }else{
                         this.setClientExists(true)
+                        this.setAddRequest(true)
                         console.log('Cliente registrado')
                         this.$alertify.message('El usuario se encuentra registrado')
                         client.forEach(dataClient => {
@@ -101,6 +102,7 @@ export default {
         verifySearch: (state) => state.clientData.identify.length > 6 ? false : true
     },
     mounted(){
+        this.setAddRequest(false)
         this.setClientDataFirestore({
                 clientId: '',
                 name: null,

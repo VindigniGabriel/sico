@@ -113,40 +113,7 @@ export default {
             requestName: [],
             subOptions: [],
             requests: [],
-            /* requests: [
-                {name: 'Cambio de Plan',
-                phone: true,
-                technologies: [
-                    {name: 'Pre/GSM',
-                    subRequest: ['PlanPreG 1', 'PlanPreG 2'],
-                    aplications: ['RTB']},
-                    {name: 'Pre/CDMA',
-                    subRequest: ['PlanPreC 1', 'PlanPreC 2'],
-                    aplications: ['SINAPSIS']},
-                    {name: 'Cre/GSM',
-                    subRequest: ['PlanCreG 1', 'PlanCreG 2'],
-                    aplications: ['XPERT/CSM']},
-                    {name: 'Cre/CDMA',
-                    subRequest: ['PlanCreC 1', 'PlanCreC 2'],
-                    aplications: ['XPERT/CSM']}
-                ]},
-                {name: 'Venta de Sim Card',
-                phone: true,
-                technologies: [
-                    {name: 'Pre/GSM',
-                    subRequest: []},
-                    {name: 'Cre/GSM',
-                    subRequest: []}
-                ]},
-                {name: 'Línea Nueva',
-                phone: false,
-                technologies: [
-                    {name: 'Pre/GSM',
-                    subRequest: ['PlanPre 1', 'PlanPre 2']},
-                    {name: 'Cre/GSM',
-                    subRequest: ['PlanCre 1', 'PlanCre 2']}
-                ]}
-            ] */
+            services: []
         }
     },
     watch: {
@@ -235,6 +202,8 @@ export default {
                     update: this.date,
                     idOffice: this.idOffice,
                     subOption: this.subOption,
+                    quote: null,
+                    close: null,
                     observations: [
                         {date: this.date, 
                         content: this.observations,
@@ -268,15 +237,13 @@ export default {
             
         },
         updateTechnologie(){
-            this.subOption = ''
-            this.requestClient.technologies.filter(result => result.name === this.technologie).forEach(r => {
-                this.subOptions =  r.subRequest
-            })
-            if(this.subOptions.length > 0){
-                this.subOption = ''
+
+            if(this.requestClient.service){
+                this.subOptions = this.services.filter(service => service.technologie === this.technologie && service.status)
             }else{
                 this.subOptions = ['No Aplica']
             }
+            
         }
     },
     mounted() {
@@ -289,6 +256,15 @@ export default {
                     this.requestName.push(request.data().name)
                     this.requests.push(request.data())
                 })
+                firebase.firestore()
+                    .collection('services')
+                    .get()
+                    .then(service => {
+                        this.services = []
+                        service.forEach(s => {
+                            this.services.push(s.data())
+                        })
+                    })
             })
         
     },

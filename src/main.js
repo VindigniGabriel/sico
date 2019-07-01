@@ -40,6 +40,7 @@ firebase.initializeApp(config)
 Vue.config.productionTip = false
 
 var typeLineItems = []
+store.commit('setTypeLineItems', '')
 firebase.firestore()
   .collection('typeLine')
   .onSnapshot(typeLines => {
@@ -51,6 +52,7 @@ firebase.firestore()
   })
 
 var requestsItems = []
+store.commit('setRequestsItems', '')
 firebase.firestore()
   .collection('optionsRequests')
   .onSnapshot(optionsRequests => {

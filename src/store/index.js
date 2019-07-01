@@ -24,6 +24,10 @@ export default new Vuex.Store({
       contact2: ''
     },
 
+    quote: null,
+
+    addRequest: false,
+
     clientRequests: [],
 
     //New Requests Client
@@ -43,14 +47,28 @@ export default new Vuex.Store({
     },
 
     //Settings
+    moment: null,
+    setDark: true,
     technologies: '',
     requestsItems: '',
     date: null,
     dialogSettingsRequests: false,
+    dialogSettingsRequestsEdit: '',
+    dialogSettingsRequestsData: {
+      id: null,
+      name: null,
+      phone: null,
+      technologies: null,
+      face: null,
+      service: null
+    },
     dialogSettingsServices: false,
     dialogSettingsServicesTechnologie: '',
     dialogSettingsServicesData: '',
-    dialogSettingsServicesEdit: false
+    dialogSettingsServicesEdit: false,
+
+    //Loading
+    dialogLoading: false
    
   },
   mutations: {
@@ -97,6 +115,14 @@ export default new Vuex.Store({
       state.clientData.identify = payload.identify
     },
 
+    setAddRequest(state, payload){
+      state.addRequest = payload
+    },
+
+    setQuote(state, payload){
+      state.quote = payload
+    },
+
     //New Request for Client
     setDialogNewRequest(state, payload){
       state.dialogNewRequest = payload
@@ -104,6 +130,12 @@ export default new Vuex.Store({
     },
 
     //Settings
+    setMoment: (state) => {
+      state.date = moment().format("YYYY-MM-DD HH:mm:ss")
+    },
+    setSetDark(state, payload){
+      state.setDark = payload
+    },
     setTypeLineItems(state, payload){
       state.technologies = payload
     },
@@ -112,7 +144,23 @@ export default new Vuex.Store({
     },
 
     setDialogSettingsRequests(state, payload){
-      state.dialogSettingsRequests = payload
+      state.dialogSettingsRequests = payload.status,
+      state.dialogSettingsRequestsEdit = payload.edit
+      if(payload.edit){
+        state.dialogSettingsRequestsData.id = payload.data.id
+        state.dialogSettingsRequestsData.face = payload.data.face
+        state.dialogSettingsRequestsData.name = payload.data.name
+        state.dialogSettingsRequestsData.phone = payload.data.phone
+        state.dialogSettingsRequestsData.service = payload.data.service
+        state.dialogSettingsRequestsData.technologies = payload.data.technologies
+      }else{
+        state.dialogSettingsRequestsData.id = null
+        state.dialogSettingsRequestsData.face = null
+        state.dialogSettingsRequestsData.name = null
+        state.dialogSettingsRequestsData.phone = null
+        state.dialogSettingsRequestsData.service = null
+        state.dialogSettingsRequestsData.technologies = null
+      }
     },
 
     setDialogSettingsServices(state, payload){
@@ -120,6 +168,10 @@ export default new Vuex.Store({
       state.dialogSettingsServicesTechnologie = payload.technologie
       state.dialogSettingsServicesData = payload.data
       state.dialogSettingsServicesEdit = payload.edit
+    },
+
+    setDialogLoading(state, payload){
+      state.dialogLoading = payload
     }
 
   },

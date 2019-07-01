@@ -12,6 +12,7 @@
       </v-flex>
       <v-flex xs12 md6>
       </v-flex>
+      <Loading/>
     </v-layout>
   </v-container>
 </template>
@@ -21,12 +22,14 @@ import SettingsRequests from './SettingsRequests'
 import SettingsServices from './SettingsServices'
 import SettingsManagements from './SettingsManagements'
 import SettingsOffices from './SettingsOffices'
+import Loading from '../loading/Loading'
 export default {
   components: {
     SettingsRequests,
     SettingsServices,
     SettingsManagements,
-    SettingsOffices
+    SettingsOffices,
+    Loading
   }
 }
 </script>

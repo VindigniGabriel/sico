@@ -4,6 +4,8 @@ import Home from '@/views/Home.vue'
 import Settings from '@/views/Settings.vue'
 import Login from '@/components/auth/Login.vue'
 import Register from '@/views/RegisterClient.vue'
+import List from '@/views/List.vue'
+import Quote from '@/views/Quote.vue'
 
 Vue.use(Router)
 
@@ -30,6 +32,16 @@ export default new Router({
       path: '/settings',
       name: 'settings',
       component: Settings
-    }
+    },
+    {
+      path: '/list',
+      name: 'List',
+      component: List
+    },
+    {
+      path: '/quote',
+      name: 'Quote',
+      component: Quote
+    },
   ]
 })

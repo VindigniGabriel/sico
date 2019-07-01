@@ -51,7 +51,7 @@
           icon="warning"
           outline
         >
-          <span class="white--text">
+          <span>
             Favor verifique los datos.
           </span>
         </v-alert>

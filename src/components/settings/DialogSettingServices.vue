@@ -8,7 +8,9 @@
     >
       <v-card>
         <v-card-title>
-            <v-subheader>{{dialogSettingsServicesEdit? 'Editar': 'Agregar'}} plan {{dialogSettingsServicesTechnologie}}</v-subheader>
+            <v-subheader>
+                {{dialogSettingsServicesEdit? 'Editar': 'Agregar'}} plan {{dialogSettingsServicesTechnologie}}
+                </v-subheader>
         </v-card-title>
         <form @submit.prevent="save">
         <v-card-text>
@@ -54,6 +56,9 @@
             {{dialogSettingsServicesEdit? 'Actualizar' : 'Agregar'}}
             </v-btn>
         </v-card-actions>
+        <v-container v-if="dialogSettingsServicesEdit">
+            <span class="caption font-weight-regular font-italic">* Los requerimientos creados NO serán actualizados con los nuevos cambios.</span>
+        </v-container>
         </form>
       </v-card>
     </v-dialog>
@@ -95,16 +100,17 @@ import { mapState, mapMutations } from 'vuex';
         }
     },
     watch: {
-      dialogSettingsServicesEdit(val){
-          if(val){
+        dialogSettingsServicesEdit(val){
+            if(val){
             this.name = this.dialogSettingsServicesData.name
             this.technologie = this.dialogSettingsServicesData.technologie
-          }
-      }
+            }
+        }
     },
     methods: {
-        ...mapMutations(['setDialogSettingsServices']),
+        ...mapMutations(['setDialogSettingsServices', 'setDialogLoading']),
         save(){
+            this.setDialogLoading(true)
             if(this.dialogSettingsServicesEdit){
                 firebase.firestore()
                 .collection('services')
@@ -118,7 +124,6 @@ import { mapState, mapMutations } from 'vuex';
                         this.close()
                     })
                     .catch( e => {
-                        console.log(e)
                         this.$alertify.error(`Error!. Plan ${this.name} NO actualizado, para ${this.technologie}`)
                         this.close()
                     })
@@ -149,8 +154,9 @@ import { mapState, mapMutations } from 'vuex';
                 technologie: '',
                 data: ''
             })
-            this.name = '',
+            this.name = ''
             this.technologie = ''
+            this.setDialogLoading(false)
         },
     },
     mounted(){

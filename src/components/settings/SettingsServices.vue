@@ -7,15 +7,15 @@
         elevation="12"
         max-width="calc(100% - 32px)"
         >
-            <v-toolbar color="teal lighten-3">
-                <v-toolbar-title>Planes</v-toolbar-title>
+            <v-toolbar color="teal lighten-3" dark>
+                <v-toolbar-title>Planes por Técnologias</v-toolbar-title>
             </v-toolbar>
         </v-sheet>
 
         <v-card-text>
           <v-tabs
             dark
-            color="cyan"
+            color="primary"
             centered
             show-arrows
           >
