@@ -1,6 +1,10 @@
 <template>
   <v-container>
     <v-layout wrap>
+      <v-flex xs12 class="text-right">
+        <v-subheader>Configuraciones</v-subheader>
+        <v-divider></v-divider>
+      </v-flex>
       <v-flex xs12 md6>
         <SettingsRequests />
       </v-flex>

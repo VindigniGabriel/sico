@@ -5,6 +5,10 @@
       wrap
       justify-center
     >
+      <v-flex xs12 class="text-right">
+        <v-subheader>Usuario <v-icon medium color='primary'>add</v-icon> requerimientos</v-subheader>
+        <v-divider></v-divider>
+      </v-flex>
       <v-flex xs12>
         <v-btn flat color="teal lighten-3" @click="back">
           <v-icon>reply</v-icon>

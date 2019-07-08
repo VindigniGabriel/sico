@@ -3,6 +3,10 @@
     <v-layout 
       row
       wrap>
+      <v-flex xs12 class="text-right">
+        <v-subheader>Historial de la OC</v-subheader>
+        <v-divider></v-divider>
+      </v-flex>
       <v-flex xs12>
         <list-table></list-table>
       </v-flex>

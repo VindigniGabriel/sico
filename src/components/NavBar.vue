@@ -72,8 +72,9 @@ export default {
             drawer: null,
             itemsMenu: [
                 { icon: 'person_add', text: 'Registro de usuarios', url: '/' },
+                { icon: 'contacts', text: 'Atención diaria', url: '/' },
                 { icon: 'list', text: 'Historial de la OC', url: '/list' },
-                { icon: 'calendar_today', text: 'Citas', url: '/quote' },
+                { icon: 'calendar_today', text: 'Gestión de citas', url: '/quote' },
                 { icon: 'settings', text: 'Configuraciones', url: '/settings' }
             ],
         }

@@ -10,7 +10,19 @@ import './registerServiceWorker'
 import firebase from 'firebase'
 import VueAlertify from 'vue-alertify'
 import Vuelidate from 'vuelidate'
- 
+import VCalendar from 'v-calendar'
+import 'v-calendar/lib/v-calendar.min.css'
+
+// Use v-calendar, v-date-picker & v-popover components
+Vue.use(VCalendar, {
+  firstDayOfWeek: 2,  // Monday
+  screens: {
+    tablet: '200px',
+    laptop: '992px',
+    desktop: '1200px',
+  },
+})
+
 Vue.use(VueAlertify,{
   moveBounded: true, 
   notifier: {

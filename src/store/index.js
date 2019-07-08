@@ -25,8 +25,10 @@ export default new Vuex.Store({
     },
 
     quote: null,
-
+    dialogRequestQuote: false, //Editar requerimiento en cita
+    dialogRequestQuoteData: {client: null},
     addRequest: false,
+    listQuote: [],
 
     clientRequests: [],
 
@@ -121,6 +123,31 @@ export default new Vuex.Store({
 
     setQuote(state, payload){
       state.quote = payload
+    },
+
+    setDialogRequestQuote(state, payload){
+      state.dialogRequestQuote = payload.status
+      state.dialogRequestQuoteData = payload.data
+    },
+
+    setListQuote(state, payload){
+      state.listQuote = []
+      state.requestsItems.forEach(request => {
+        let quotesConfirm = payload.filter(r => r.status === 'con Cita confirmada' && r.request === request.name)
+        let quotesNoConfirm = payload.filter(r => r.status === 'con Cita por confirmar' && r.request === request.name)
+        let quotesProcessed = payload.filter(r => r.status === 'Procesado' && r.request === request.name)
+        let quotesNotProcessed = payload.filter(r => r.status === 'No procedente' && r.request === request.name)
+        let quotesClose = payload.filter(r => r.status === 'Cerrado' && r.request === request.name)
+
+        state.listQuote.push({
+          request: request.name,
+          wait: quotesNoConfirm.length,
+          check: quotesConfirm.length,
+          processed: quotesProcessed.length,
+          notProcessed: quotesNotProcessed.length,
+          close: quotesClose.length,
+        })
+      })
     },
 
     //New Request for Client

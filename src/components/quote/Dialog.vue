@@ -2,7 +2,7 @@
   <v-layout row justify-center>
     <v-dialog v-model="dialogQuote" fullscreen hide-overlay transition="dialog-bottom-transition">
       <template v-slot:activator="{ on }">
-        <v-btn outline v-on="on" small color="primary">Agregar</v-btn>
+        <v-btn outline v-on="on" small color="teal lighten-3">Agregar requerimiento(s)</v-btn>
       </template>
       <v-card>
         <v-toolbar dark color="primary">
@@ -86,6 +86,7 @@
 </template>
 
 <script>
+import moment from "moment";
 import firebase from "firebase"
 import { mapState } from 'vuex';
 export default {
@@ -223,6 +224,7 @@ export default {
         .doc(this.idOffice)
         .get()
         .then((office) => {
+          console.log(this.quote)
           office = office.data().name
           var observation = []
           this.assingRequests.forEach(assing => {
@@ -249,7 +251,7 @@ export default {
                         .collection('clientsRequests')
                         .doc(request.id)
                         .update({
-                          status: 'con Cita',
+                          status: 'con Cita por confirmar',
                           update: this.date,
                           observations,
                           quote: this.quote

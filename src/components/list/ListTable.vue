@@ -57,10 +57,9 @@
 
           <v-card>
             <v-card-title
-              class="headline teal lighten-2"
               primary-title
             >
-              Observaciones
+                <span class="headline">Observaciones</span>
               <v-spacer></v-spacer>
               <span>{{item + 1}}/{{lengthObservations}}</span>
             </v-card-title>
