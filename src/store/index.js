@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import moment from 'moment'
+import firebase from 'firebase'
 
 Vue.use(Vuex)
 
@@ -29,6 +30,8 @@ export default new Vuex.Store({
     dialogRequestQuoteData: {client: null},
     addRequest: false,
     listQuote: [],
+    quotes: [], //Atención diaria
+    quotesFilter: [], //Atención diaria con filtro por aplicaciones disponibles
 
     clientRequests: [],
 
@@ -49,10 +52,12 @@ export default new Vuex.Store({
     },
 
     //Settings
+    customerSupport: true,
     moment: null,
     setDark: true,
     technologies: '',
     requestsItems: '',
+    aplications: [], //por defecto todas las aplicaciones estarán en estatus disponible
     date: null,
     dialogSettingsRequests: false,
     dialogSettingsRequestsEdit: '',
@@ -125,10 +130,18 @@ export default new Vuex.Store({
       state.quote = payload
     },
 
+    setQuotes(state, payload){
+      state.quotes = payload
+    },
+
+    setQuotesFilter(state, payload){
+      state.quotesFilter = payload
+    },
+
     setDialogRequestQuote(state, payload){
       state.dialogRequestQuote = payload.status
       state.dialogRequestQuoteData = payload.data
-    },
+    }, 
 
     setListQuote(state, payload){
       state.listQuote = []
@@ -146,8 +159,16 @@ export default new Vuex.Store({
           processed: quotesProcessed.length,
           notProcessed: quotesNotProcessed.length,
           close: quotesClose.length,
+          customerSupport: [
+            quotesConfirm.length,
+            quotesProcessed.length + quotesNotProcessed.length + quotesClose.length
+          ]
         })
       })
+    },
+    //Mostrar tipo de atención del día
+    setCustomerSupport(state, payload){
+      state.customerSupport = payload
     },
 
     //New Request for Client
@@ -168,6 +189,29 @@ export default new Vuex.Store({
     },
     setRequestsItems(state, payload){
       state.requestsItems = payload
+    },
+    setAplications(state, payload){
+      state.aplications = payload
+    },
+    setAplicationsStatus(state){
+      state.quotesFilter = []
+      let enabledAplications = state.aplications.filter(a => a.status === true).map(r => r.name)
+      state.requestsItems.filter(r => r.face === true).forEach(rq => {
+
+        rq.technologies.forEach(technologie => {
+            let sizeI = technologie.aplications.filter(value => enabledAplications.includes(value))
+            if(sizeI.length === technologie.aplications.length){
+              let quotes = state.quotes.filter(r => r.request === rq.name && r.technologie === technologie.name)
+              if(quotes.length > 0) {
+                quotes.forEach(quote => {
+                  state.quotesFilter.push(quote)
+                })
+              }
+            }
+
+        })
+        
+      })
     },
 
     setDialogSettingsRequests(state, payload){
@@ -203,6 +247,60 @@ export default new Vuex.Store({
 
   },
   actions: {
-
+    //citas del día
+    setQuotes(context){
+      firebase.firestore()
+        .collection('clientsRequests')
+        .where('idOffice', '==', context.state.idOffice)
+        .where('quote', '==',  moment().format('DD/MM/YYYY'))
+        .onSnapshot(s => {
+          let requests = []
+          context.commit('setDialogLoading', true)
+          let quotes = []
+          context.commit('setQuotes', quotes)
+          if(s.empty) context.commit('setDialogLoading', false)
+          requests = []
+          let client = null
+          context.state.quotes = []
+          s.forEach(request => {
+            firebase.firestore()
+              .collection('clientsRegisters')
+              .doc(request.data().clientId)
+              .get()
+              .then(c => {
+                if(c.empty) context.commit('setDialogLoading', false)
+                firebase.firestore()
+                  .collection('officeCommercial')
+                  .doc(context.state.idOffice)
+                  .get()
+                  .then(office => {
+                    let ocm = office.data().name
+                    client = c.data()
+                    quotes.push({
+                      id: request.id,
+                      created: request.data().created,
+                      author: request.data().author,
+                      office: ocm,
+                      request: request.data().request,
+                      phone: request.data().phone,
+                      technologie: request.data().technologie,
+                      observations: request.data().observations,
+                      quote: request.data().quote,
+                      close: request.data().close,
+                      status: request.data().status,
+                      subOption: request.data().subOption,
+                      update: request.data().update,
+                      client
+                    })
+                    context.commit('setDialogLoading', false)
+                    context.commit('setQuotes', quotes.filter(q => q.status != 'con Cita por confirmar'))
+                    context.commit('setQuotesFilter', quotes.filter(q => q.status != 'con Cita por confirmar'))
+                  })
+                })
+            requests.push(request.data())
+          })
+          context.commit('setListQuote', requests)
+        })
+    }, 
   }
 })

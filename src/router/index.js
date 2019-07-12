@@ -6,6 +6,7 @@ import Login from '@/components/auth/Login.vue'
 import Register from '@/views/RegisterClient.vue'
 import List from '@/views/List.vue'
 import Quote from '@/views/Quote.vue'
+import CustomerSupport from '@/views/CustomerSupport.vue'
 
 Vue.use(Router)
 
@@ -43,5 +44,13 @@ export default new Router({
       name: 'Quote',
       component: Quote
     },
-  ]
+    {
+      path: '/customerSupport',
+      name: 'CustomerSupport',
+      component: CustomerSupport
+    }
+  ],
+  scrollBehavior (to, from, savedPosition) {
+    return { x: 0, y: 0 }
+  }
 })

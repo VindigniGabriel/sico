@@ -28,26 +28,39 @@
             <v-divider></v-divider>
         </v-flex>
         <v-flex xs12>
-            <v-data-table
-            :headers="headers"
-            :items="quotes"
-            :search="search"
-            :pagination.sync="pagination"
-            >
-                <template 
-                    v-slot:items="props" 
+            <v-card>
+                <v-card-title>
+                Requerimientos
+                <v-spacer></v-spacer>
+                <v-text-field
+                    v-model="search"
+                    append-icon="search"
+                    label="Buscar"
+                    single-line
+                    hide-details
+                ></v-text-field>
+                </v-card-title>
+                <v-data-table
+                :headers="headers"
+                :items="quotes"
+                :search="search"
+                :pagination.sync="pagination"
                 >
-                <tr @click="setDialogRequestQuote({status: true, data: props.item})" style="cursor: pointer">
-                    <td>{{ props.item.created }} {{dateRelative(props.item.created)}}</td>
-                    <td class="text-xs-left">{{ props.item.request }}</td>
-                    <td class="text-xs-left">{{ props.item.technologie }}</td>
-                    <td class="text-xs-left">{{ props.item.status }}</td>
-                </tr>
-                </template>
-                <template v-slot:no-results>
-                    Sin resultados para "{{ search }}".
-                </template>
-            </v-data-table>
+                    <template 
+                        v-slot:items="props" 
+                    >
+                    <tr @click="setDialogRequestQuote({status: true, data: props.item})" style="cursor: pointer">
+                        <td>{{ props.item.created }} {{dateRelative(props.item.created)}}</td>
+                        <td class="text-xs-left">{{ props.item.request }}</td>
+                        <td class="text-xs-left">{{ props.item.technologie }}</td>
+                        <td class="text-xs-left">{{ props.item.status }}</td>
+                    </tr>
+                    </template>
+                    <template v-slot:no-results>
+                        Sin resultados para "{{ search }}".
+                    </template>
+                </v-data-table>
+            </v-card>
             <Request v-if="dialogRequestQuote"/>
         </v-flex>
         <Loading/>
@@ -187,6 +200,34 @@ export default {
             const filename = 'Citas GPCG-SICO'
             XLSX.utils.book_append_sheet(workbook, data, filename)
             XLSX.writeFile(workbook, `Citas_${this.date}.xlsx`)
+        },
+        async updateRequests(){
+            let date = moment().format('DD/MM/YYYY')
+            let requests = await firebase.firestore()
+                .collection('clientsRequests')
+                .where('quote', '<', date)
+                .where('close', '==', null)
+                .get()
+
+        
+            requests.forEach(r => {
+                let observations = r.data().observations
+
+                observations.push({
+                        author: 'GPCG',
+                        content: `El requerimiento no fue actualizado en la fecha asignada, se actualiza a estado "Pendiente"`,
+                        date:  moment().format("YYYY-MM-DD HH:mm:ss")
+                    })
+                firebase.firestore()
+                    .collection('clientsRequests')
+                    .doc(r.id)
+                    .update({
+                        close: null,
+                        quote: null,
+                        status: 'Pendiente',
+                        observations
+                    })
+            })
         }
     },
     computed: {
@@ -196,6 +237,7 @@ export default {
     created(){
         this.updateQuote()
         this.listQuotes()
+        this.updateRequests() //Actualiza requerimientos antes del día actual en estatus: con cita
     }
 }
 </script>

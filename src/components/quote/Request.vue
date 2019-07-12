@@ -261,8 +261,9 @@ export default {
                             .doc(this.dialogRequestQuoteData.id)
                             .update({
                                 status: 'Pendiente',
-                                quote: '',
-                                observations
+                                quote: null,
+                                observations,
+                                close: null
                             })
                             .then(() => {
                                 this.$alertify.success(`Requerimiento actualizado al estado "Pendiente"`)
@@ -284,7 +285,8 @@ export default {
                             .update({
                                 status: this.dialogRequestQuoteData.status,
                                 quote: date,
-                                observations
+                                observations,
+                                close: null
                             })
                             .then(() => {
                                 this.$alertify.success(`Requerimiento actualizado al estado ${this.dialogRequestQuoteData.status}`)
@@ -292,7 +294,7 @@ export default {
                                 })
                     }
 
-                    if(this.quote === 'ignore'){
+                    if(this.quote === 'close'){
 
                         observations.push({
                             author: firebase.auth().currentUser.displayName,
@@ -305,7 +307,8 @@ export default {
                             .doc(this.dialogRequestQuoteData.id)
                             .update({
                                 status: this.dialogRequestQuoteData.status,
-                                observations
+                                observations,
+                                close: date
                             })
                             .then(() => {
                                 this.$alertify.success(`Requerimiento actualizado al estado ${this.dialogRequestQuoteData.status}`)

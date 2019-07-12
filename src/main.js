@@ -12,6 +12,12 @@ import VueAlertify from 'vue-alertify'
 import Vuelidate from 'vuelidate'
 import VCalendar from 'v-calendar'
 import 'v-calendar/lib/v-calendar.min.css'
+import HighchartsVue from 'highcharts-vue'
+import Highcharts from 'highcharts'
+import exportingInit from 'highcharts/modules/exporting'
+
+exportingInit(Highcharts)
+Vue.use(HighchartsVue)
 
 // Use v-calendar, v-date-picker & v-popover components
 Vue.use(VCalendar, {
@@ -68,6 +74,7 @@ store.commit('setRequestsItems', '')
 firebase.firestore()
   .collection('optionsRequests')
   .onSnapshot(optionsRequests => {
+    requestsItems = []
     optionsRequests.forEach(request => {
       requestsItems.push(request.data())
     })

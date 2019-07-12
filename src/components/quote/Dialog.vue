@@ -24,7 +24,7 @@
                     </v-card-title>  
                     <v-card-actions>
                       <v-switch
-                      @change="loadRequests"
+                        @change="loadRequests"
                         color="teal lighten-3"
                         small
                         v-for="(aplication, a) in aplications"
@@ -224,7 +224,6 @@ export default {
         .doc(this.idOffice)
         .get()
         .then((office) => {
-          console.log(this.quote)
           office = office.data().name
           var observation = []
           this.assingRequests.forEach(assing => {
@@ -234,6 +233,8 @@ export default {
                   .collection('clientsRequests')
                   .where('request', '==', assing.name)
                   .where('technologie', '==', this.technologies[v])
+                  .where('quote', '==', null)
+                  .where('close', '==', null)
                   .limit(parseInt(value))
                   .get()
                   .then(requests => {
@@ -254,7 +255,8 @@ export default {
                           status: 'con Cita por confirmar',
                           update: this.date,
                           observations,
-                          quote: this.quote
+                          quote: this.quote,
+                          close: null
                         })
                     })
                   })
